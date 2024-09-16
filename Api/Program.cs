@@ -1,16 +1,19 @@
+using Api.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder
+    .AddSwagger()
+    .AddDbContext();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app
+    .UseSwaggerInDevelopment()
+    .UseHttpsRedirection();
 
-app.UseHttpsRedirection();
+app.MapEndpoints();
+
+await app.RunMigrations();
 
 app.Run();

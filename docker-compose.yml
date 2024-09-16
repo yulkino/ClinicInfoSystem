@@ -1,0 +1,37 @@
+﻿services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver-container
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Password1*"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks:
+      - app-network
+
+  webapp:
+    build:
+      context: .
+      dockerfile: ./Api/Dockerfile
+    container_name: api-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - sqlserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ClinicInfoSystem;User=sa;Password=Password1*;Encrypt=False;
+
+    networks:
+      - app-network
+
+volumes:
+  sql_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
